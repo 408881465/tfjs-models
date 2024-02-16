@@ -60,9 +60,10 @@ export class BrowserFftSpeechCommandRecognizer implements
   static readonly VALID_VOCABULARY_NAMES: string[] = ['18w', 'directional4w'];
   static readonly DEFAULT_VOCABULARY_NAME = '18w';
 
-  readonly MODEL_URL_PREFIX =
-      `https://www.sjaiedu.com/tfjs-models/tfjs/speech-commands/v${
-          getMajorAndMinorVersion(version)}/browser_fft`;
+  // readonly MODEL_URL_PREFIX =
+  //     `https://www.sjaiedu.com/tfjs-models/tfjs/speech-commands/v${
+  //         getMajorAndMinorVersion(version)}/browser_fft`;
+ readonly MODEL_URL_PREFIX = model_url_prefix + getMajorAndMinorVersion(version_1.version) + "/browser_fft";
 
   private readonly SAMPLE_RATE_HZ = 44100;
   private readonly FFT_SIZE = 1024;
