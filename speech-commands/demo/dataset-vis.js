@@ -307,11 +307,11 @@ export class DatasetViz {
     const requiredMinCountPerClass =
         Math.ceil(this.minExamplesPerClass / this.transferDurationMultiplier);
     if (minCountByClass >= requiredMinCountPerClass) {
-      this.startTransferLearnButton.textContent = 'Start transfer learning';
+      this.startTransferLearnButton.textContent = '开始迁移学习';
       this.startTransferLearnButton.disabled = false;
     } else {
       this.startTransferLearnButton.textContent =
-          `Need at least ${requiredMinCountPerClass} examples per word`;
+          `每个要学习的词至少需要采集 ${requiredMinCountPerClass} 个样本`;
       this.startTransferLearnButton.disabled = true;
     }
 
