@@ -223,7 +223,7 @@ function createWordDivs(transferWords) {
       // Create noise duration input.
       durationInput = document.createElement('input');
       durationInput.setAttribute('isFixed', 'true');
-      durationInput.value = '10';
+      durationInput.value = '3';
       durationInput.style['width'] = '100px';
       wordDiv.appendChild(durationInput);
       // Create time-unit span for noise duration.
