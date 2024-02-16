@@ -62,7 +62,7 @@ export class BrowserFftSpeechCommandRecognizer implements
 
   readonly MODEL_URL_PREFIX =
       `https://storage.googleapis.com/tfjs-models/tfjs/speech-commands/v${
-           getMajorAndMinorVersion(version)}/browser_fft`;
+          getMajorAndMinorVersion(version)}/browser_fft`;
  // readonly MODEL_URL_PREFIX = model_url_prefix + getMajorAndMinorVersion(version_1.version) + "/browser_fft";
 
   private readonly SAMPLE_RATE_HZ = 44100;
