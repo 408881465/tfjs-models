@@ -61,7 +61,7 @@ export class BrowserFftSpeechCommandRecognizer implements
   static readonly DEFAULT_VOCABULARY_NAME = '18w';
 
   readonly MODEL_URL_PREFIX =
-      `https://storage.googleapis.com/tfjs-models/tfjs/speech-commands/v${
+      `https://www.sjaiedu.com/tfjs-models/tfjs/speech-commands/v${
           getMajorAndMinorVersion(version)}/browser_fft`;
 
   private readonly SAMPLE_RATE_HZ = 44100;
