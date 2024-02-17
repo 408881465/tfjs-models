@@ -1,27 +1,81 @@
-/**
- * @license
- * Copyright 2019 Google LLC. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * =============================================================================
- */
+// function bleSerialBroadcastCmd(str) {
+//   //将字符串转为Uint8Array数组
+//   function stringToUint8Array(str) {
+//     const encoder = new TextEncoder();
+//     return encoder.encode(str);
+//   };
+//   //字节命令数组各个元素
+//   // 251：0xfb Long message format 长消息
+//   // 27：0x1b Broadcast (OpCode: 0x1B, long message) 广播
+//   // 0: 0x00
+//   // (str).length+1：字符串长度+1
+//   // 0：
+//   // stringToUint8Array(str)：将字符串转换成Uint8Array字节数组
+//   //254：0xfe 命令结束标志
+//   let length = str.length + 1;
+//   let bytesCmd = new Uint8Array([251, 27, 0, (length % 256), parseInt((length / 256)), ...stringToUint8Array(str), 254]);
+//   return bytesCmd;
+// };
+// const SERVICE_UUID = 'bb37a001-b922-4018-8e74-e14824b3a638';
+// const CHARACTERISTIC_UUID_RX = 'bb37a002-b922-4018-8e74-e14824b3a638';//
+// const CHARACTERISTIC_UUID_TX = 'bb37a003-b922-4018-8e74-e14824b3a638'; //
+// let device = null;
+// let txCharacteristic = null;
+// let server = null;
+// let service = null;
+// let characteristic = null;
+// let deviceIsConnected = false;
+// async function connectBle() {
+//   try {
+//     // 连接BLE设备的操作
+//     device = await navigator.bluetooth.requestDevice({
+//       acceptAllDevices: true,
+//       optionalServices: [SERVICE_UUID]
+//     });
+//     server = await device.gatt.connect();
+//     service = await server.getPrimaryService(SERVICE_UUID);
+//     // 获取 RX 和 TX 特征
+//     const characteristics = await Promise.all([
+//       service.getCharacteristic(CHARACTERISTIC_UUID_RX),
+//       service.getCharacteristic(CHARACTERISTIC_UUID_TX)
+//     ]);
+//     characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID_RX);
+//     const [rxCharacteristic, mytxCharacteristic] = characteristics;
+//     txCharacteristic = mytxCharacteristic;
+//     // 订阅 TX 特征的通知
+//     // await txCharacteristic.startNotifications();
+//     // txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+//     deviceIsConnected = true;
+//     console.log('成功连接BLE设备');
+//     document.getElementById('ble-conn-info').innerHTML = '蓝牙已连接:' + device.name;
+//   } catch (error) {
+//     console.log('连接错误：' + error);
+//   }
+// }
+// async function disconnectBle() {
+//   try {
+//     if (device && device.gatt.connected) {
+//       await device.gatt.disconnect();
+//       deviceIsConnected = false;
+//       console.log('成功断开蓝牙连接');
+//       document.getElementById('ble-conn-info').innerHTML = '蓝牙已断开';
+//     } else {
+//       console.log('没有已连接的蓝牙设备');
+//     }
+//   } catch (error) {
+//     console.log('断开连接错误：' + error);
+//   }
+// }
+// document.getElementById('connBle').addEventListener('click', connectBle);
+// document.getElementById('disconnBle').addEventListener('click', disconnectBle);
 
 import * as tf from '@tensorflow/tfjs';
 import Plotly from 'plotly.js-dist';
 
 import * as SpeechCommands from '@tensorflow-models/speech-commands';
 
-import {DatasetViz, removeNonFixedChildrenFromWordDiv} from './dataset-vis';
-import {hideCandidateWords, logToStatusDisplay, plotPredictions, plotSpectrogram, populateCandidateWords, showCandidateWords} from './ui';
+import { DatasetViz, removeNonFixedChildrenFromWordDiv } from './dataset-vis';
+import { hideCandidateWords, logToStatusDisplay, plotPredictions, plotSpectrogram, populateCandidateWords, showCandidateWords } from './ui';
 
 const startButton = document.getElementById('start');
 const stopButton = document.getElementById('stop');
@@ -38,18 +92,18 @@ const datasetFileInput = document.getElementById('dataset-file-input');
 const uploadFilesButton = document.getElementById('upload-dataset');
 
 const evalModelOnDatasetButton =
-    document.getElementById('eval-model-on-dataset');
+  document.getElementById('eval-model-on-dataset');
 const evalResultsSpan = document.getElementById('eval-results');
 
 const modelIOButton = document.getElementById('model-io');
 const transferModelSaveLoadInnerDiv =
-    document.getElementById('transfer-model-save-load-inner');
+  document.getElementById('transfer-model-save-load-inner');
 const loadTransferModelButton = document.getElementById('load-transfer-model');
 const saveTransferModelButton = document.getElementById('save-transfer-model');
 const savedTransferModelsSelect =
-    document.getElementById('saved-transfer-models');
+  document.getElementById('saved-transfer-models');
 const deleteTransferModelButton =
-    document.getElementById('delete-transfer-model');
+  document.getElementById('delete-transfer-model');
 
 const BACKGROUND_NOISE_TAG = SpeechCommands.BACKGROUND_NOISE_TAG;
 
@@ -61,12 +115,15 @@ const learnWordsInput = document.getElementById('learn-words');
 const durationMultiplierSelect = document.getElementById('duration-multiplier');
 const enterLearnWordsButton = document.getElementById('enter-learn-words');
 const includeTimeDomainWaveformCheckbox =
-    document.getElementById('include-audio-waveform');
+  document.getElementById('include-audio-waveform');
 const collectButtonsDiv = document.getElementById('collect-words');
 const startTransferLearnButton =
-    document.getElementById('start-transfer-learn');
+  document.getElementById('start-transfer-learn');
 
 const XFER_MODEL_NAME = 'xfer-model';
+
+
+
 
 // Minimum required number of examples per class for transfer learning.
 const MIN_EXAMPLES_PER_CLASS = 8;
@@ -76,9 +133,9 @@ let transferWords;
 let transferRecognizer;
 let transferDurationMultiplier;
 
-(async function() {
+(async function () {
   logToStatusDisplay('Creating recognizer...');
-  recognizer = SpeechCommands.create('BROWSER_FFT',undefined,'https://tangmingsh.gitee.io/tfjs-models/tfjs/speech-commands/v0.5/browser_fft/18w/model.json','https://tangmingsh.gitee.io/tfjs-models/tfjs/speech-commands/v0.5/browser_fft/18w/metadata.json');
+  recognizer = SpeechCommands.create('BROWSER_FFT', undefined, 'https://www.sjaiedu.com/tfjs-models/tfjs-models/tfjs/speech-commands/v0.2/browser_fft/18w/model.json', 'https://www.sjaiedu.com/tfjs-models/tfjs-models/tfjs/speech-commands/v0.2/browser_fft/18w/metadata.json');
 
   await populateSavedTransferModelsSelect();
 
@@ -86,76 +143,76 @@ let transferDurationMultiplier;
   // called here, the tf.Model will be loaded the first time
   // `listen()` is called.
   recognizer.ensureModelLoaded()
-      .then(() => {
-        startButton.disabled = false;
-        enterLearnWordsButton.disabled = false;
-        loadTransferModelButton.disabled = false;
-        deleteTransferModelButton.disabled = false;
+    .then(() => {
+      startButton.disabled = false;
+      enterLearnWordsButton.disabled = false;
+      loadTransferModelButton.disabled = false;
+      deleteTransferModelButton.disabled = false;
 
-        transferModelNameInput.value = `model-${getDateString()}`;
+      transferModelNameInput.value = `model-${getDateString()}`;
 
-        logToStatusDisplay('Model loaded.');
+      logToStatusDisplay('Model loaded.');
 
-        const params = recognizer.params();
-        logToStatusDisplay(`sampleRateHz: ${params.sampleRateHz}`);
-        logToStatusDisplay(`fftSize: ${params.fftSize}`);
-        logToStatusDisplay(
-            `spectrogramDurationMillis: ` +
-            `${params.spectrogramDurationMillis.toFixed(2)}`);
-        logToStatusDisplay(
-            `tf.Model input shape: ` +
-            `${JSON.stringify(recognizer.modelInputShape())}`);
-      })
-      .catch(err => {
-        logToStatusDisplay(
-            'Failed to load model for recognizer: ' + err.message);
-      });
+      const params = recognizer.params();
+      logToStatusDisplay(`sampleRateHz: ${params.sampleRateHz}`);
+      logToStatusDisplay(`fftSize: ${params.fftSize}`);
+      logToStatusDisplay(
+        `spectrogramDurationMillis: ` +
+        `${params.spectrogramDurationMillis.toFixed(2)}`);
+      logToStatusDisplay(
+        `tf.Model input shape: ` +
+        `${JSON.stringify(recognizer.modelInputShape())}`);
+    })
+    .catch(err => {
+      logToStatusDisplay(
+        'Failed to load model for recognizer: ' + err.message);
+    });
 })();
 
 startButton.addEventListener('click', () => {
   const activeRecognizer =
-      transferRecognizer == null ? recognizer : transferRecognizer;
+    transferRecognizer == null ? recognizer : transferRecognizer;
   populateCandidateWords(activeRecognizer.wordLabels());
 
   const suppressionTimeMillis = 1000;
   activeRecognizer
-      .listen(
-          result => {
-            plotPredictions(
-                predictionCanvas, activeRecognizer.wordLabels(), result.scores,
-                3, suppressionTimeMillis);
-          },
-          {
-            includeSpectrogram: true,
-            suppressionTimeMillis,
-            probabilityThreshold: Number.parseFloat(probaThresholdInput.value)
-          })
-      .then(() => {
-        startButton.disabled = true;
-        stopButton.disabled = false;
-        showCandidateWords();
-        logToStatusDisplay('Streaming recognition started.');
+    .listen(
+      result => {
+        plotPredictions(
+          predictionCanvas, activeRecognizer.wordLabels(), result.scores,
+          3, suppressionTimeMillis);
+      },
+      {
+        includeSpectrogram: true,
+        suppressionTimeMillis,
+        probabilityThreshold: Number.parseFloat(probaThresholdInput.value)
       })
-      .catch(err => {
-        logToStatusDisplay(
-            'ERROR: Failed to start streaming display: ' + err.message);
-      });
+    .then(() => {
+      startButton.disabled = true;
+      stopButton.disabled = false;
+      showCandidateWords();
+      logToStatusDisplay('Streaming recognition started.');
+    })
+    .catch(err => {
+      logToStatusDisplay(
+        'ERROR: Failed to start streaming display: ' + err.message);
+    });
 });
 
 stopButton.addEventListener('click', () => {
   const activeRecognizer =
-      transferRecognizer == null ? recognizer : transferRecognizer;
+    transferRecognizer == null ? recognizer : transferRecognizer;
   activeRecognizer.stopListening()
-      .then(() => {
-        startButton.disabled = false;
-        stopButton.disabled = true;
-        hideCandidateWords();
-        logToStatusDisplay('Streaming recognition stopped.');
-      })
-      .catch(err => {
-        logToStatusDisplay(
-            'ERROR: Failed to stop streaming display: ' + err.message);
-      });
+    .then(() => {
+      startButton.disabled = false;
+      stopButton.disabled = true;
+      hideCandidateWords();
+      logToStatusDisplay('Streaming recognition stopped.');
+    })
+    .catch(err => {
+      logToStatusDisplay(
+        'ERROR: Failed to stop streaming display: ' + err.message);
+    });
 });
 
 /**
@@ -180,7 +237,7 @@ function createProgressBarAndIntervalJob(parentElement, durationSec) {
     progressBar.value += 0.05;
   }, durationSec * 1e3 / 20);
   parentElement.appendChild(progressBar);
-  return {progressBar, intervalJob};
+  return { progressBar, intervalJob };
 }
 
 /**
@@ -195,9 +252,9 @@ function createWordDivs(transferWords) {
     collectButtonsDiv.removeChild(collectButtonsDiv.firstChild);
   }
   datasetViz = new DatasetViz(
-      transferRecognizer, collectButtonsDiv, MIN_EXAMPLES_PER_CLASS,
-      startTransferLearnButton, downloadAsFileButton,
-      transferDurationMultiplier);
+    transferRecognizer, collectButtonsDiv, MIN_EXAMPLES_PER_CLASS,
+    startTransferLearnButton, downloadAsFileButton,
+    transferDurationMultiplier);
 
   const wordDivs = {};
   for (const word of transferWords) {
@@ -223,8 +280,9 @@ function createWordDivs(transferWords) {
       // Create noise duration input.
       durationInput = document.createElement('input');
       durationInput.setAttribute('isFixed', 'true');
-      durationInput.value = '3';
+      durationInput.value = '2';
       durationInput.style['width'] = '100px';
+      durationInput.setAttribute('class', 'setting');
       wordDiv.appendChild(durationInput);
       // Create time-unit span for noise duration.
       const timeUnitSpan = document.createElement('span');
@@ -251,7 +309,7 @@ function createWordDivs(transferWords) {
         // _background_noise_ examples are special, in that user can specify
         // the length of the recording (in seconds).
         collectExampleOptions.durationSec =
-            Number.parseFloat(durationInput.value);
+          Number.parseFloat(durationInput.value);
         durationSec = collectExampleOptions.durationSec;
 
         const barAndJob = createProgressBarAndIntervalJob(wordDiv, durationSec);
@@ -274,18 +332,18 @@ function createWordDivs(transferWords) {
             tempSpectrogramData = spectrogram.data;
           } else {
             tempSpectrogramData = SpeechCommands.utils.concatenateFloat32Arrays(
-                [tempSpectrogramData, spectrogram.data]);
+              [tempSpectrogramData, spectrogram.data]);
           }
           plotSpectrogram(
-              tempCanvas, tempSpectrogramData, spectrogram.frameSize,
-              spectrogram.frameSize, {pixelsPerFrame: 2});
+            tempCanvas, tempSpectrogramData, spectrogram.frameSize,
+            spectrogram.frameSize, { pixelsPerFrame: 2 });
         }
       }
 
       collectExampleOptions.includeRawAudio =
-          includeTimeDomainWaveformCheckbox.checked;
+        includeTimeDomainWaveformCheckbox.checked;
       const spectrogram =
-          await transferRecognizer.collectExample(word, collectExampleOptions);
+        await transferRecognizer.collectExample(word, collectExampleOptions);
 
 
       if (intervalJob != null) {
@@ -297,7 +355,7 @@ function createWordDivs(transferWords) {
       const examples = transferRecognizer.getExamples(word)
       const example = examples[examples.length - 1];
       await datasetViz.drawExample(
-          wordDiv, word, spectrogram, example.example.rawAudio, example.uid);
+        wordDiv, word, spectrogram, example.example.rawAudio, example.uid);
       enableAllCollectWordButtons();
     });
   }
@@ -379,28 +437,28 @@ startTransferLearnButton.addEventListener('click', async () => {
       y: [],
       name: 'train' + phaseSuffix,
       mode: 'lines',
-      line: {width: lineWidth}
+      line: { width: lineWidth }
     };
     valLossValues[phase] = {
       x: [],
       y: [],
       name: 'val' + phaseSuffix,
       mode: 'lines',
-      line: {width: lineWidth}
+      line: { width: lineWidth }
     };
     trainAccValues[phase] = {
       x: [],
       y: [],
       name: 'train' + phaseSuffix,
       mode: 'lines',
-      line: {width: lineWidth}
+      line: { width: lineWidth }
     };
     valAccValues[phase] = {
       x: [],
       y: [],
       name: 'val' + phaseSuffix,
       mode: 'lines',
-      line: {width: lineWidth}
+      line: { width: lineWidth }
     };
   }
 
@@ -416,42 +474,41 @@ startTransferLearnButton.addEventListener('click', async () => {
     valAccValues[phase].y.push(val_acc);
 
     Plotly.newPlot(
-        'loss-plot',
-        [
-          trainLossValues[INITIAL_PHASE], valLossValues[INITIAL_PHASE],
-          trainLossValues[FINE_TUNING_PHASE], valLossValues[FINE_TUNING_PHASE]
-        ],
-        {
-          width: 480,
-          height: 360,
-          xaxis: {title: 'Epoch #'},
-          yaxis: {title: 'Loss'},
-          font: {size: 18}
-        });
+      'loss-plot',
+      [
+        trainLossValues[INITIAL_PHASE], valLossValues[INITIAL_PHASE],
+        trainLossValues[FINE_TUNING_PHASE], valLossValues[FINE_TUNING_PHASE]
+      ],
+      {
+        width: 480,
+        height: 360,
+        xaxis: { title: 'Epoch #' },
+        yaxis: { title: 'Loss' },
+        font: { size: 18 }
+      });
     Plotly.newPlot(
-        'accuracy-plot',
-        [
-          trainAccValues[INITIAL_PHASE], valAccValues[INITIAL_PHASE],
-          trainAccValues[FINE_TUNING_PHASE], valAccValues[FINE_TUNING_PHASE]
-        ],
-        {
-          width: 480,
-          height: 360,
-          xaxis: {title: 'Epoch #'},
-          yaxis: {title: 'Accuracy'},
-          font: {size: 18}
-        });
+      'accuracy-plot',
+      [
+        trainAccValues[INITIAL_PHASE], valAccValues[INITIAL_PHASE],
+        trainAccValues[FINE_TUNING_PHASE], valAccValues[FINE_TUNING_PHASE]
+      ],
+      {
+        width: 480,
+        height: 360,
+        xaxis: { title: 'Epoch #' },
+        yaxis: { title: 'Accuracy' },
+        font: { size: 18 }
+      });
     startTransferLearnButton.textContent = phase === INITIAL_PHASE ?
-        `迁移学习中... (${(epoch / epochs * 1e2).toFixed(0)}%)` :
-        `迁移学习中 (微调)... (${
-            (epoch / fineTuningEpochs * 1e2).toFixed(0)}%)`
+      `迁移学习中... (${(epoch / epochs * 1e2).toFixed(0)}%)` :
+      `迁移学习中(微调)... (${(epoch / fineTuningEpochs * 1e2).toFixed(0)}%)`
 
     scrollToPageBottom();
   }
 
   disableAllCollectWordButtons();
   const augmentByMixingNoiseRatio =
-      document.getElementById('augment-by-mixing-noise').checked ? 0.5 : null;
+    document.getElementById('augment-by-mixing-noise').checked ? 0.5 : null;
   console.log(`augmentByMixingNoiseRatio = ${augmentByMixingNoiseRatio}`);
   await transferRecognizer.train({
     epochs,
@@ -460,16 +517,16 @@ startTransferLearnButton.addEventListener('click', async () => {
     callback: {
       onEpochEnd: async (epoch, logs) => {
         plotLossAndAccuracy(
-            epoch, logs.loss, logs.acc, logs.val_loss, logs.val_acc,
-            INITIAL_PHASE);
+          epoch, logs.loss, logs.acc, logs.val_loss, logs.val_acc,
+          INITIAL_PHASE);
       }
     },
     fineTuningEpochs,
     fineTuningCallback: {
       onEpochEnd: async (epoch, logs) => {
         plotLossAndAccuracy(
-            epoch, logs.loss, logs.acc, logs.val_loss, logs.val_acc,
-            FINE_TUNING_PHASE);
+          epoch, logs.loss, logs.acc, logs.val_loss, logs.val_acc,
+          FINE_TUNING_PHASE);
       }
     }
   });
@@ -490,7 +547,7 @@ downloadAsFileButton.addEventListener('click', () => {
   const anchor = document.createElement('a');
   anchor.download = `${basename}.bin`;
   anchor.href = window.URL.createObjectURL(
-      new Blob([artifacts], {type: 'application/octet-stream'}));
+    new Blob([artifacts], { type: 'application/octet-stream' }));
   anchor.click();
 });
 
@@ -542,7 +599,7 @@ uploadFilesButton.addEventListener('click', async () => {
     enterLearnWordsButton.disabled = true;
   };
   datasetFileReader.onerror = () =>
-      console.error(`Failed to binary data from file '${dataFile.name}'.`);
+    console.error(`Failed to binary data from file '${dataFile.name}'.`);
   datasetFileReader.readAsArrayBuffer(files[0]);
 });
 
@@ -569,7 +626,7 @@ async function loadDatasetInTransferRecognizer(serialized) {
       // multiplier of the dataset.
       if (word !== BACKGROUND_NOISE_TAG) {
         durationMultipliers.push(Math.round(
-            spectrogram.data.length / spectrogram.frameSize / modelNumFrames));
+          spectrogram.data.length / spectrogram.frameSize / modelNumFrames));
       }
     }
   }
@@ -578,10 +635,10 @@ async function loadDatasetInTransferRecognizer(serialized) {
 
   // Determine the transferDurationMultiplier value from the dataset.
   transferDurationMultiplier =
-      durationMultipliers.length > 0 ? Math.max(...durationMultipliers) : 1;
+    durationMultipliers.length > 0 ? Math.max(...durationMultipliers) : 1;
   console.log(
-      `Deteremined transferDurationMultiplier from uploaded ` +
-      `dataset: ${transferDurationMultiplier}`);
+    `Deteremined transferDurationMultiplier from uploaded ` +
+    `dataset: ${transferDurationMultiplier}`);
 
   createWordDivs(transferWords);
   datasetViz.redrawAll();
@@ -606,12 +663,12 @@ evalModelOnDatasetButton.addEventListener('click', async () => {
       const evalResult = await transferRecognizer.evaluate({
         windowHopRatio: 0.25,
         wordProbThresholds: [
-          0,    0.05, 0.1,  0.15, 0.2,  0.25, 0.3,  0.35, 0.4,  0.5,
-          0.55, 0.6,  0.65, 0.7,  0.75, 0.8,  0.85, 0.9,  0.95, 1.0
+          0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5,
+          0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0
         ]
       });
       // Plot the ROC curve.
-      const rocDataForPlot = {x: [], y: []};
+      const rocDataForPlot = { x: [], y: [] };
       evalResult.rocCurve.forEach(item => {
         rocDataForPlot.x.push(item.fpr);
         rocDataForPlot.y.push(item.tpr);
@@ -621,10 +678,10 @@ evalModelOnDatasetButton.addEventListener('click', async () => {
         width: 360,
         height: 360,
         mode: 'markers',
-        marker: {size: 7},
-        xaxis: {title: 'False positive rate (FPR)', range: [0, 1]},
-        yaxis: {title: 'True positive rate (TPR)', range: [0, 1]},
-        font: {size: 18}
+        marker: { size: 7 },
+        xaxis: { title: 'False positive rate (FPR)', range: [0, 1] },
+        yaxis: { title: 'True positive rate (TPR)', range: [0, 1] },
+        font: { size: 18 }
       });
       evalResultsSpan.textContent = `AUC = ${evalResult.auc}`;
     } catch (err) {
@@ -637,7 +694,7 @@ evalModelOnDatasetButton.addEventListener('click', async () => {
     evalModelOnDatasetButton.disabled = false;
   };
   datasetFileReader.onerror = () =>
-      console.error(`Failed to binary data from file '${dataFile.name}'.`);
+    console.error(`Failed to binary data from file '${dataFile.name}'.`);
   datasetFileReader.readAsArrayBuffer(files[0]);
 });
 
@@ -660,7 +717,7 @@ async function populateSavedTransferModelsSelect() {
 saveTransferModelButton.addEventListener('click', async () => {
   await transferRecognizer.save();
   await populateSavedTransferModelsSelect();
-  saveTransferModelButton.textContent = '模型已保存';
+  saveTransferModelButton.textContent = 'Model saved!';
   saveTransferModelButton.disabled = true;
 });
 
@@ -677,7 +734,7 @@ loadTransferModelButton.addEventListener('click', async () => {
   enterLearnWordsButton.disabled = true;
   saveTransferModelButton.disabled = true;
   loadTransferModelButton.disabled = true;
-  loadTransferModelButton.textContent = '模型已载入';
+  loadTransferModelButton.textContent = 'Model loaded!';
 });
 
 modelIOButton.addEventListener('click', () => {
@@ -704,10 +761,10 @@ datasetIOButton.addEventListener('click', () => {
   if (datasetIOButton.textContent.endsWith(' >>')) {
     datasetIOInnerDiv.style.display = 'inline-block';
     datasetIOButton.textContent =
-        datasetIOButton.textContent.replace(' >>', ' <<');
+      datasetIOButton.textContent.replace(' >>', ' <<');
   } else {
     datasetIOInnerDiv.style.display = 'none';
     datasetIOButton.textContent =
-        datasetIOButton.textContent.replace(' <<', ' >>');
+      datasetIOButton.textContent.replace(' <<', ' >>');
   }
 });
