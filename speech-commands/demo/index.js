@@ -442,8 +442,8 @@ startTransferLearnButton.addEventListener('click', async () => {
           font: {size: 18}
         });
     startTransferLearnButton.textContent = phase === INITIAL_PHASE ?
-        `Transfer-learning... (${(epoch / epochs * 1e2).toFixed(0)}%)` :
-        `Transfer-learning (fine-tuning)... (${
+        `迁移学习中... (${(epoch / epochs * 1e2).toFixed(0)}%)` :
+        `迁移学习中 (微调)... (${
             (epoch / fineTuningEpochs * 1e2).toFixed(0)}%)`
 
     scrollToPageBottom();
