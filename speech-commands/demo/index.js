@@ -660,7 +660,7 @@ async function populateSavedTransferModelsSelect() {
 saveTransferModelButton.addEventListener('click', async () => {
   await transferRecognizer.save();
   await populateSavedTransferModelsSelect();
-  saveTransferModelButton.textContent = 'Model saved!';
+  saveTransferModelButton.textContent = '模型已保存';
   saveTransferModelButton.disabled = true;
 });
 
@@ -677,7 +677,7 @@ loadTransferModelButton.addEventListener('click', async () => {
   enterLearnWordsButton.disabled = true;
   saveTransferModelButton.disabled = true;
   loadTransferModelButton.disabled = true;
-  loadTransferModelButton.textContent = 'Model loaded!';
+  loadTransferModelButton.textContent = '模型已载入';
 });
 
 modelIOButton.addEventListener('click', () => {
