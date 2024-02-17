@@ -358,7 +358,7 @@ function disableFileUploadControls() {
 startTransferLearnButton.addEventListener('click', async () => {
   startTransferLearnButton.disabled = true;
   startButton.disabled = true;
-  startTransferLearnButton.textContent = 'Transfer learning starting...';
+  startTransferLearnButton.textContent = '迁移学习中';
   await tf.nextFrame();
 
   const INITIAL_PHASE = 'initial';
@@ -476,7 +476,7 @@ startTransferLearnButton.addEventListener('click', async () => {
   saveTransferModelButton.disabled = false;
   transferModelNameInput.value = transferRecognizer.name;
   transferModelNameInput.disabled = true;
-  startTransferLearnButton.textContent = 'Transfer learning complete.';
+  startTransferLearnButton.textContent = '已完成.';
   transferModelNameInput.disabled = false;
   startButton.disabled = false;
   evalModelOnDatasetButton.disabled = false;
