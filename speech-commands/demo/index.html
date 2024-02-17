@@ -9,13 +9,15 @@
 </head>
 
 <body>
+  <h2>Tfjs自定义语音识别 to Mciroblocks</h2>
+  <div class="settings">这个tfjs程序可以在线训练一个自定义语音识别模型，用来控制MicroBlocks蓝牙设备。</div>
   <div class="start-stop">
     <button id="start" disabled="true">开始识别</button>
     <button id="stop" disabled="true">停止识别</button>
-    <button id="connBle"  onclick="connectBle()">连接蓝牙</button>
-    <button id="disConnBle" onclick="disconnectBle()">断开蓝牙</button>
+    <button id="connBle">连接蓝牙</button>
+    <button id="disconnBle">断开蓝牙</button>
   </div>
-  <div class="settings" id="ble-conn-info">MicroBlocks蓝牙设备未连接</div>
+  <div class="settings" id="ble-conn-info" style="color: red;">MicroBlocks蓝牙设备未连接</div>
   <div class='main-model'>
     <div class="settings">
       <span style="display:none">置信度阈值:</span>
