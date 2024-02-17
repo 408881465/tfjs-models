@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
@@ -13,7 +12,10 @@
   <div class="start-stop">
     <button id="start" disabled="true">开始识别</button>
     <button id="stop" disabled="true">停止识别</button>
+    <button id="connBle"  onclick="connectBle()">连接蓝牙</button>
+    <button id="disConnBle" onclick="disconnectBle()">断开蓝牙</button>
   </div>
+  <div class="settings" id="ble-conn-info">MicroBlocks蓝牙设备未连接</div>
   <div class='main-model'>
     <div class="settings">
       <span style="display:none">置信度阈值:</span>
@@ -25,21 +27,18 @@
     <textarea id="status-display" style="display: none" cols="80" readonly="true"></textarea>
   </div>
   <div class="transfer-learn-section">
-    <input id="transfer-model-name" size="20" placeholder="model name">
-    <input id="learn-words" size="36" value="_background_noise_,on,off">
+    <div class="settings"><input id="transfer-model-name" size="20" style="width: 300px;" placeholder="model name">这里可以设置模型名称</div>
+    <div class="settings"><input id="learn-words" size="20" style="width: 300px;" value="_background_noise_,on,off">这里可以输入自定义识别的词：</div>
+    <div class="settings">注意：_background_noise_代表背景噪音不要改，自定义识别的词用英文且用英文逗号隔开，采集声音时可说汉语。</div>
     <select id="duration-multiplier">
-      <option value="1">持续时间 x1</option>
-      <option value="2" selected="true">持续时间 x2</option>
+      <option value="1">1倍时间</option>
+      <option value="2" selected="true">2倍时间</option>
     </select>
-
     <input type="checkbox" id="include-audio-waveform">
-    <span id="include-audio-waveform-label">声音频谱</span>
-
-    <button id="enter-learn-words" disabled="true">输入要学习的词</button>
-
+    <span id="include-audio-waveform-label">显示声音频谱</span>
+    <button id="enter-learn-words" disabled="true">采集声音数据</button>
     <div id="transfer-learn-history"></div>
     <div id="collect-words"></div>
-
     <div class="collapsible-region">
       <button id="dataset-io">数据操作 >></button>
       <div class="collapsible-region-inner" id="dataset-io-inner">
