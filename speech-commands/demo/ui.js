@@ -17,7 +17,7 @@
 
 import * as SpeechCommands from '../src';
 
-import {BACKGROUND_NOISE_TAG, UNKNOWN_TAG} from '../src';
+import { BACKGROUND_NOISE_TAG, UNKNOWN_TAG } from '../src';
 
 const statusDisplay = document.getElementById('status-display');
 const candidateWordsContainer = document.getElementById('candidate-words');
@@ -89,7 +89,7 @@ export function hideCandidateWords() {
  *   <= fftSize.
  */
 export async function plotSpectrogram(
-    canvas, frequencyData, fftSize, fftDisplaySize, config) {
+  canvas, frequencyData, fftSize, fftDisplaySize, config) {
   if (fftDisplaySize == null) {
     fftDisplaySize = fftSize;
   }
@@ -142,7 +142,7 @@ export async function plotSpectrogram(
       colorValue = Math.pow(colorValue, 3);
       colorValue = Math.round(255 * colorValue);
       const fillStyle =
-          `rgb(${colorValue},${255 - colorValue},${255 - colorValue})`;
+        `rgb(${colorValue},${255 - colorValue},${255 - colorValue})`;
       context.fillStyle = fillStyle;
       context.fillRect(x, y, pixelWidth, pixelHeight);
     }
@@ -150,11 +150,11 @@ export async function plotSpectrogram(
 
   if (config.markKeyFrame) {
     const keyFrameIndex = config.keyFrameIndex == null ?
-        await SpeechCommands
-            .getMaxIntensityFrameIndex(
-                {data: frequencyData, frameSize: fftSize})
-            .data() :
-        config.keyFrameIndex;
+      await SpeechCommands
+        .getMaxIntensityFrameIndex(
+          { data: frequencyData, frameSize: fftSize })
+        .data() :
+      config.keyFrameIndex;
     // Draw lines to mark the maximum-intensity frame.
     context.strokeStyle = 'black';
     context.beginPath();
@@ -180,8 +180,8 @@ export async function plotSpectrogram(
  *   indefinitely till the next highlighting.
  * @param {number} topK Top _ scores to render.
  */
-export function plotPredictions(
-    canvas, candidateWords, probabilities, topK, timeToLiveMillis) {
+export async function plotPredictions(
+  canvas, candidateWords, probabilities, topK, timeToLiveMillis) {
   if (topK != null) {
     let wordsAndProbs = [];
     for (let i = 0; i < candidateWords.length; ++i) {
@@ -194,9 +194,13 @@ export function plotPredictions(
 
     // Highlight the top word.
     const topWord = wordsAndProbs[0][0];
+    if ((typeof (server) !== 'undefined') & (deviceIsConnected)) {
+      const data = bleSerialBroadcastCmd(topWord);
+      await characteristic.writeValue(data);
+    }
     console.log(
-        `"${topWord}" (p=${wordsAndProbs[0][1].toFixed(6)}) @ ` +
-        new Date().toTimeString());
+      `"${topWord}" (p=${wordsAndProbs[0][1].toFixed(6)}) @ ` +
+      new Date().toTimeString());
     for (const word in candidateWordSpans) {
       if (word === topWord) {
         candidateWordSpans[word].classList.add('candidate-word-active');
@@ -204,7 +208,7 @@ export function plotPredictions(
           setTimeout(() => {
             if (candidateWordSpans[word]) {
               candidateWordSpans[word].classList.remove(
-                  'candidate-word-active');
+                'candidate-word-active');
             }
           }, timeToLiveMillis);
         }
