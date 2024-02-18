@@ -15,7 +15,7 @@
     <button id="start" disabled="true">开始识别</button>
     <button id="stop" disabled="true">停止识别</button>
     <button id="connBle">连接蓝牙</button>
-    <button id="disconnBle">断开蓝牙</button>
+    <button id="disconnBle" disabled="true">断开蓝牙</button>
   </div>
   <div class="settings" id="ble-conn-info" style="color: red;">MicroBlocks蓝牙设备未连接</div>
   <div class='main-model'>
@@ -29,8 +29,10 @@
     <textarea id="status-display" style="display: none" cols="80" readonly="true"></textarea>
   </div>
   <div class="transfer-learn-section">
-    <div class="settings"><input id="transfer-model-name" size="20" style="width: 300px;" placeholder="model name">这里可以设置模型名称</div>
-    <div class="settings"><input id="learn-words" size="20" style="width: 300px;" value="_background_noise_,on,off">这里可以输入自定义识别的词：</div>
+    <div class="settings"><input id="transfer-model-name" size="20" style="width: 300px;"
+        placeholder="model name">这里可以设置模型名称</div>
+    <div class="settings"><input id="learn-words" size="20" style="width: 300px;"
+        value="_background_noise_,on,off">这里可以输入自定义识别的词：</div>
     <div class="settings">注意：_background_noise_代表背景噪音不要改，自定义识别的词用英文且用英文逗号隔开，采集声音时可说汉语。</div>
     <select id="duration-multiplier">
       <option value="1">1倍时间</option>
@@ -80,7 +82,7 @@
       <button id="model-io">模型操作 >></button>
       <div class="collapsible-region-inner" id="transfer-model-save-load-inner">
         <div>
-          <button id="load-transfer-model" disabled="true">载人模型:</button>
+          <button id="load-transfer-model" disabled="true">载入模型:</button>
           <select id="saved-transfer-models">
             <option value="1"></option>
           </select>
@@ -92,7 +94,79 @@
       </div>
     </div>
   </div>
+  <script>
+    function bleSerialBroadcastCmd(str) {
 
+      function stringToUint8Array(str) {
+        const encoder = new TextEncoder();
+        return encoder.encode(str);
+      };
+      //字节命令数组各个元素
+      // 251：0xfb Long message format 长消息
+      // 27：0x1b Broadcast (OpCode: 0x1B, long message) 广播
+      // stringToUint8Array(str)：将字符串转换成Uint8Array字节数组
+      //254：0xfe 命令结束标志
+      let length = str.length + 1;
+      let bytesCmd = new Uint8Array([251, 27, 0, (length % 256), parseInt((length / 256)), ...stringToUint8Array(str), 254]);
+      return bytesCmd;
+    };
+    const SERVICE_UUID = 'bb37a001-b922-4018-8e74-e14824b3a638';
+    const CHARACTERISTIC_UUID_RX = 'bb37a002-b922-4018-8e74-e14824b3a638';//
+    const CHARACTERISTIC_UUID_TX = 'bb37a003-b922-4018-8e74-e14824b3a638'; //
+    let device = null;
+    let txCharacteristic = null;
+    let server = null;
+    let service = null;
+    let characteristic = null;
+    let deviceIsConnected = false;
+    async function connectBle() {
+      try {
+        // 连接BLE设备的操作
+        device = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [SERVICE_UUID]
+        });
+        server = await device.gatt.connect();
+        service = await server.getPrimaryService(SERVICE_UUID);
+        // 获取 RX 和 TX 特征
+        const characteristics = await Promise.all([
+          service.getCharacteristic(CHARACTERISTIC_UUID_RX),
+          service.getCharacteristic(CHARACTERISTIC_UUID_TX)
+        ]);
+        characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID_RX);
+        const [rxCharacteristic, mytxCharacteristic] = characteristics;
+        txCharacteristic = mytxCharacteristic;
+        // 订阅 TX 特征的通知
+        // await txCharacteristic.startNotifications();
+        // txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+        deviceIsConnected = true;
+        document.getElementById('connBle').disabled = true;
+        document.getElementById('disconnBle').disabled = false;
+        console.log('成功连接BLE设备');
+        document.getElementById('ble-conn-info').innerHTML = '蓝牙已连接:' + device.name;
+      } catch (error) {
+        console.log('连接错误：' + error);
+      }
+    }
+    async function disconnectBle() {
+      try {
+        if (device && device.gatt.connected) {
+          await device.gatt.disconnect();
+          deviceIsConnected = false;
+          console.log('成功断开蓝牙连接');
+          document.getElementById('connBle').disabled = false;
+          document.getElementById('disconnBle').disabled = true;
+          document.getElementById('ble-conn-info').innerHTML = '蓝牙已断开';
+        } else {
+          console.log('没有已连接的蓝牙设备');
+        }
+      } catch (error) {
+        console.log('断开连接错误：' + error);
+      }
+    }
+    document.getElementById('connBle').addEventListener('click', connectBle);
+    document.getElementById('disconnBle').addEventListener('click', disconnectBle);
+  </script>
   <script src="index.js"></script>
 </body>
 
