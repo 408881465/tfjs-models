@@ -1,74 +1,3 @@
-// function bleSerialBroadcastCmd(str) {
-//   //将字符串转为Uint8Array数组
-//   function stringToUint8Array(str) {
-//     const encoder = new TextEncoder();
-//     return encoder.encode(str);
-//   };
-//   //字节命令数组各个元素
-//   // 251：0xfb Long message format 长消息
-//   // 27：0x1b Broadcast (OpCode: 0x1B, long message) 广播
-//   // 0: 0x00
-//   // (str).length+1：字符串长度+1
-//   // 0：
-//   // stringToUint8Array(str)：将字符串转换成Uint8Array字节数组
-//   //254：0xfe 命令结束标志
-//   let length = str.length + 1;
-//   let bytesCmd = new Uint8Array([251, 27, 0, (length % 256), parseInt((length / 256)), ...stringToUint8Array(str), 254]);
-//   return bytesCmd;
-// };
-// const SERVICE_UUID = 'bb37a001-b922-4018-8e74-e14824b3a638';
-// const CHARACTERISTIC_UUID_RX = 'bb37a002-b922-4018-8e74-e14824b3a638';//
-// const CHARACTERISTIC_UUID_TX = 'bb37a003-b922-4018-8e74-e14824b3a638'; //
-// let device = null;
-// let txCharacteristic = null;
-// let server = null;
-// let service = null;
-// let characteristic = null;
-// let deviceIsConnected = false;
-// async function connectBle() {
-//   try {
-//     // 连接BLE设备的操作
-//     device = await navigator.bluetooth.requestDevice({
-//       acceptAllDevices: true,
-//       optionalServices: [SERVICE_UUID]
-//     });
-//     server = await device.gatt.connect();
-//     service = await server.getPrimaryService(SERVICE_UUID);
-//     // 获取 RX 和 TX 特征
-//     const characteristics = await Promise.all([
-//       service.getCharacteristic(CHARACTERISTIC_UUID_RX),
-//       service.getCharacteristic(CHARACTERISTIC_UUID_TX)
-//     ]);
-//     characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID_RX);
-//     const [rxCharacteristic, mytxCharacteristic] = characteristics;
-//     txCharacteristic = mytxCharacteristic;
-//     // 订阅 TX 特征的通知
-//     // await txCharacteristic.startNotifications();
-//     // txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
-//     deviceIsConnected = true;
-//     console.log('成功连接BLE设备');
-//     document.getElementById('ble-conn-info').innerHTML = '蓝牙已连接:' + device.name;
-//   } catch (error) {
-//     console.log('连接错误：' + error);
-//   }
-// }
-// async function disconnectBle() {
-//   try {
-//     if (device && device.gatt.connected) {
-//       await device.gatt.disconnect();
-//       deviceIsConnected = false;
-//       console.log('成功断开蓝牙连接');
-//       document.getElementById('ble-conn-info').innerHTML = '蓝牙已断开';
-//     } else {
-//       console.log('没有已连接的蓝牙设备');
-//     }
-//   } catch (error) {
-//     console.log('断开连接错误：' + error);
-//   }
-// }
-// document.getElementById('connBle').addEventListener('click', connectBle);
-// document.getElementById('disconnBle').addEventListener('click', disconnectBle);
-
 import * as tf from '@tensorflow/tfjs';
 import Plotly from 'plotly.js-dist';
 
@@ -365,9 +294,9 @@ function createWordDivs(transferWords) {
 enterLearnWordsButton.addEventListener('click', () => {
   const modelName = transferModelNameInput.value;
   if (modelName == null || modelName.length === 0) {
-    enterLearnWordsButton.textContent = 'Need model name!';
+    enterLearnWordsButton.textContent = '需要给模型命名';
     setTimeout(() => {
-      enterLearnWordsButton.textContent = 'Enter transfer words';
+      enterLearnWordsButton.textContent = '输入需要学习的词';
     }, 2000);
     return;
   }
@@ -717,7 +646,7 @@ async function populateSavedTransferModelsSelect() {
 saveTransferModelButton.addEventListener('click', async () => {
   await transferRecognizer.save();
   await populateSavedTransferModelsSelect();
-  saveTransferModelButton.textContent = 'Model saved!';
+  saveTransferModelButton.textContent = '模型已保存';
   saveTransferModelButton.disabled = true;
 });
 
@@ -734,7 +663,7 @@ loadTransferModelButton.addEventListener('click', async () => {
   enterLearnWordsButton.disabled = true;
   saveTransferModelButton.disabled = true;
   loadTransferModelButton.disabled = true;
-  loadTransferModelButton.textContent = 'Model loaded!';
+  loadTransferModelButton.textContent = '模型已载入';
 });
 
 modelIOButton.addEventListener('click', () => {
@@ -753,7 +682,7 @@ deleteTransferModelButton.addEventListener('click', async () => {
   transferRecognizer = recognizer.createTransfer(transferModelName);
   await SpeechCommands.deleteSavedTransferModel(transferModelName);
   deleteTransferModelButton.disabled = true;
-  deleteTransferModelButton.textContent = `Deleted "${transferModelName}"`;
+  deleteTransferModelButton.textContent = `删除 "${transferModelName}"`;
   await populateSavedTransferModelsSelect();
 });
 
