@@ -64,7 +64,7 @@ let transferDurationMultiplier;
 
 (async function () {
   logToStatusDisplay('Creating recognizer...');
-  recognizer = SpeechCommands.create('BROWSER_FFT', undefined, 'https://www.sjaiedu.com/tfjs-models/tfjs-models/tfjs/speech-commands/v0.2/browser_fft/18w/model.json', 'https://www.sjaiedu.com/tfjs-models/tfjs-models/tfjs/speech-commands/v0.2/browser_fft/18w/metadata.json');
+  recognizer = SpeechCommands.create('BROWSER_FFT', undefined, 'https://storage.googleapis.com/tfjs-models/tfjs-models/tfjs/speech-commands/v0.2/browser_fft/18w/model.json', 'https://storage.googleapis.com/tfjs-models/tfjs/speech-commands/v0.2/browser_fft/18w/metadata.json');
 
   await populateSavedTransferModelsSelect();
 
